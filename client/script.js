@@ -1,15 +1,17 @@
-var button = document.getElementById("request");
-button.addEventListener("click", function(){
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost:591", true);
-  xhr.onreadystatechange = function(){
-    if(this.readyState == this.DONE){
-      if(this.status != 200){
-        console.log("Ошибка: "+this.status);
-      }else {
-        console.log(this.responseText);
-      }
+var field = document.getElementById("field"),
+    chat = document.getElementById("chat");
+
+var ws = new WebSocket("ws://localhost:591/");
+
+ws.onmessage = function(message){
+  chat.value = message.data + "\n" + chat.value;
+};
+
+ws.onopen = function(){
+  field.addEventListener("keydown", function(event){
+    if(event.which == 13){
+      ws.send(field.value);
+      field.value = "";
     }
-  };
-  xhr.send();
-});
+  });
+};

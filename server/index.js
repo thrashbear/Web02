@@ -1,11 +1,19 @@
-var express = require("express"),
-    cors = require("cors");
-var app = express();
-app.use(cors());
+var wss = require("ws").Server;
 
-app.get("/folder/page", function(request, response){
-  var x = request.query.foo;
-  response.send({foo:x});
+var server = new wss({port: 591});
+
+var clients = new Set();
+
+server.on("connection", function(socket){
+  clients.add(socket);
+
+  socket.on("message", function(message){
+    for(var interlocutor of clients){
+      interlocutor.send(message);
+    }
+  });
+
+  socket.on("close", function(){
+    clients.delete(socket);
+  });
 });
-
-app.listen(591);
